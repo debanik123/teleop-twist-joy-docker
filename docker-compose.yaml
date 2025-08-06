@@ -34,6 +34,27 @@ services:
     restart: always
     environment:
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+  
+  # New service for Bluetooth auto-connection and Docker restart
+  bt_auto_connect:
+    build:
+      context: .
+      dockerfile: Dockerfile.bt_auto_connect # Path to the Dockerfile for this service
+    container_name: bt_auto_connect
+    privileged: true # Grants the container all capabilities, essential for Bluetooth interaction (rfkill, bluetoothctl)
+    network_mode: host # Allows the container to access the host's network stack directly, necessary for bluetoothctl and Docker socket access
+    volumes:
+      # Mount the Docker socket to allow this container to send commands to the Docker daemon on the host.
+      # This is crucial for 'docker compose restart joy'.
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Mount the Python script directly. This is useful for development as you can edit the script
+      # on your host and the changes will be reflected in the container without rebuilding the image.
+      - ./docker_bt_auto_connect.py:/docker_bt_auto_connect.py
+    restart: always # Ensure this service is always running
+    environment:
+      - DEVICE_MAC=90:B6:85:00:7D:B4 # Specify your Bluetooth device's MAC address
+      - RETRY_DELAY=1 # Set the delay in seconds between connection attempts
+    command: python3 /docker_bt_auto_connect.py # Command to execute your Python script
 
   # ktx_teleop_twist_joy:
   #   image: wonbot/shinheeagv:ktx_teleop_twist_joy_v.10
