@@ -9,4 +9,4 @@ COPY docker_bt_auto_connect.py /usr/local/bin/docker_bt_auto_connect.py
 RUN chmod +x /usr/local/bin/docker_bt_auto_connect.py
 
 # Set entrypoint
-ENTRYPOINT ["python3", "/usr/local/bin/docker_bt_auto_connect.py"]
+ENTRYPOINT ["python3", "-u", "/usr/local/bin/docker_bt_auto_connect.py"]

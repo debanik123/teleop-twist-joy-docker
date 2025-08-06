@@ -36,21 +36,19 @@ services:
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
   
 
-  # bt_monitor:
-  #   image: python:bt_monitor
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.bt_auto_connect
-  #   container_name: bt_monitor
-  #   restart: always
-  #   privileged: true
-  #   network_mode: host
-  #   volumes:
-  #     - /var/run/dbus:/var/run/dbus
-  #     - /dev:/dev
-  #     - /var/run/docker.sock:/var/run/docker.sock:rw
-  #   depends_on:
-  #     - joy
+  bt_monitor:
+    image: python:bt_monitor
+    build:
+      context: .
+      dockerfile: Dockerfile.bt_auto_connect
+    container_name: bt_monitor
+    restart: always
+    privileged: true
+    network_mode: host
+    volumes:
+      - /var/run/dbus:/var/run/dbus
+      - /dev:/dev
+      - /var/run/docker.sock:/var/run/docker.sock:rw
   
   # New service for Bluetooth auto-connection and Docker restart
   # bt_auto_connect:
