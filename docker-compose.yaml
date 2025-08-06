@@ -43,13 +43,26 @@ services:
     container_name: bt_auto_connect
     privileged: true # Grants the container all capabilities, essential for Bluetooth interaction (rfkill, bluetoothctl)
     network_mode: host # Allows the container to access the host's network stack directly, necessary for bluetoothctl and Docker socket access
+
     volumes:
-      # Mount the Docker socket to allow this container to send commands to the Docker daemon on the host.
-      # This is crucial for 'docker compose restart joy'.
-      - /var/run/docker.sock:/var/run/docker.sock
-      # Mount the Python script directly. This is useful for development as you can edit the script
-      # on your host and the changes will be reflected in the container without rebuilding the image.
+      - ${PWD}/amr_task_manager_js/maps:/amr_task_manager_js/maps:rw
+      - ${PWD}/amr_task_manager_js/bt_trees:/amr_task_manager_js/bt_trees:rw
+      - ${PWD}/amr_task_manager_js/public:/amr_task_manager_js/public:rw
+      - /var/run/docker.sock:/var/run/docker.sock:rw  # Allow the container to control Docker on the host
+      - /var/run/dbus:/var/run/dbus
+      - /dev/mem:/dev/mem  # Allow access to /dev/mem device
+      - ./cyclone_dds_profile.xml:/dds_ws/cyclone_dds_profile.xml
+      - /bin/systemctl:/bin/systemctl
+      - /run/systemd/system:/run/systemd/system
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+      - /sys/fs/cgroup:/sys/fs/cgroup
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
       - ./docker_bt_auto_connect.py:/docker_bt_auto_connect.py
+      # - ./audio:/usr/src/app/audio 
+    devices:
+      - "/dev/snd:/dev/snd"
+      - "/dev/input"
     restart: always # Ensure this service is always running
     environment:
       - DEVICE_MAC=90:B6:85:00:7D:B4 # Specify your Bluetooth device's MAC address
