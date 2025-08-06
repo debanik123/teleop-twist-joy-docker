@@ -36,23 +36,23 @@ services:
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
   
   # New service for Bluetooth auto-connection and Docker restart
-  bt_auto_connect:
-    image: husarnet/ros:bt_auto_connect
-    build:
-      context: .
-      dockerfile: Dockerfile.bt_auto_connect # Path to the Dockerfile for this service
-    container_name: bt_auto_connect
-    privileged: true # Grants the container all capabilities, essential for Bluetooth interaction (rfkill, bluetoothctl)
-    network_mode: host # Allows the container to access the host's network stack directly, necessary for bluetoothctl and Docker socket access
+  # bt_auto_connect:
+  #   image: husarnet/ros:bt_auto_connect
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.bt_auto_connect # Path to the Dockerfile for this service
+  #   container_name: bt_auto_connect
+  #   privileged: true # Grants the container all capabilities, essential for Bluetooth interaction (rfkill, bluetoothctl)
+  #   network_mode: host # Allows the container to access the host's network stack directly, necessary for bluetoothctl and Docker socket access
 
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:rw  # Allow the container to control Docker on the host
-      - /var/run/dbus:/var/run/dbus
-      - ./docker_bt_auto_connect.py:/docker_bt_auto_connect.py
-      # - ./audio:/usr/src/app/audio 
-    # restart: always # Ensure this service is always running
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:rw  # Allow the container to control Docker on the host
+  #     - /var/run/dbus:/var/run/dbus
+  #     - ./docker_bt_auto_connect.py:/docker_bt_auto_connect.py
+  #     # - ./audio:/usr/src/app/audio 
+  #   # restart: always # Ensure this service is always running
     
-    command: python3 /docker_bt_auto_connect.py # Command to execute your Python script
+  #   command: python3 /docker_bt_auto_connect.py # Command to execute your Python script
 
   # ktx_teleop_twist_joy:
   #   image: wonbot/shinheeagv:ktx_teleop_twist_joy_v.10
