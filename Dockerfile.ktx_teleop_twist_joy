@@ -22,6 +22,9 @@ RUN apt update && apt install -y \
 COPY ./amr_ws/src/teleop_twist_joy ${KTX_WS}/src/teleop_twist_joy
 
 
+COPY joy_params.yaml /
+COPY teleop_twist_joy_f710_params.yaml /
+
 
 RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
     && colcon build --symlink-install
