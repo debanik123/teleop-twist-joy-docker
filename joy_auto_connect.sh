@@ -1,4 +1,5 @@
 #!/bin/bash
+# sudo bash joy_auto_connect.sh
 set -e
 
 echo "🔧 Starting D-Bus and Bluetooth services..."
