@@ -1,5 +1,6 @@
 import subprocess
 import time
+import os 
 
 def turn_on_bluetooth():
     """Turns on Bluetooth using rfkill."""
@@ -66,8 +67,8 @@ def check_and_connect_device(mac_address):
         return False
 
 if __name__ == "__main__":
-    DEVICE_MAC = "90:B6:85:00:7D:B4"
-    RETRY_DELAY = 3 # seconds
+    DEVICE_MAC = os.getenv("DEVICE_MAC", "90:B6:85:00:7D:B4") # Default if not set
+    RETRY_DELAY = int(os.getenv("RETRY_DELAY", "3")) # Default if not set
 
     while True:
         print("\n--- Starting Bluetooth check and connect cycle ---")
