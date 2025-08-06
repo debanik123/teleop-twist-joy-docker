@@ -1,0 +1,6 @@
+ktx_joystick:
+  ros__parameters:
+    dev: "/dev/input/js1"  # Replace with your joystick device
+    deadzone: 0.3
+    autorepeat_rate: 20.0
+    # dev_ff: "/dev/input/event18"

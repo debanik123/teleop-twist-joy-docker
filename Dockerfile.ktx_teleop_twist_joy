@@ -1,0 +1,31 @@
+FROM wonbot/shinheeagv:humble-ros-base
+
+ENV KTX_WS="/ktx_drive_ws"
+
+SHELL ["/bin/bash", "-c"]
+
+WORKDIR ${KTX_WS}
+
+
+
+RUN apt update && apt install -y \
+        libsdl2-dev \
+        bluez \
+        dbus \
+        ros-${ROS_DISTRO}-rmw-cyclonedds-cpp && \
+        rm -rf /var/lib/apt/lists/*
+
+# Copy and build dependencies
+COPY ./amr_ws/src/teleop_twist_joy ${KTX_WS}/src/teleop_twist_joy
+
+
+
+RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
+    && colcon build --symlink-install
+
+COPY ./ktx_teleop_twist_joy_entrypoint.bash /ktx_teleop_twist_joy_entrypoint.bash
+RUN chmod +x /ktx_teleop_twist_joy_entrypoint.bash
+
+ENTRYPOINT ["/ktx_teleop_twist_joy_entrypoint.bash"]
+CMD ["bash"]
+
