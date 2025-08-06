@@ -30,7 +30,7 @@ def check_and_connect_device(mac_address):
             # Restart the Docker 'joy' container after a successful reconnection
             print("Restarting 'joy' Docker container...")
             # Use 'docker compose restart' which requires the docker-compose-plugin and docker.sock mount
-            # subprocess.run(["docker", "compose", "restart", "joy"], check=True)
+            subprocess.run(["docker", "compose", "restart", "joy"], check=True)
             print("Docker compose restart successful.")
 
             return True
