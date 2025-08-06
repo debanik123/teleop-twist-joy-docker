@@ -22,6 +22,23 @@ def check_and_connect_device(mac_address):
         else:
             print(f"🎮 Device {mac_address} is not connected. Attempting to connect...")
             # Try to connect the device
+
+            print("🔄 Performing full Bluetooth reset...")
+            # Remove the device
+            subprocess.run(["bluetoothctl", "remove", mac_address], check=True)
+            # Power cycle Bluetooth
+            subprocess.run(["bluetoothctl", "power", "off"], check=True)
+            # time.sleep(1)  # Short delay
+            subprocess.run(["bluetoothctl", "power", "on"], check=True)
+            # time.sleep(1)  # Allow time to power on
+            
+            # Scan for devices (timeout after 15 seconds)
+            print("🔍 Scanning for devices...")
+            scan_process = subprocess.Popen(["bluetoothctl", "scan", "on"])
+            time.sleep(15)  # Scan for 15 seconds
+            scan_process.terminate()
+        
+
             subprocess.run(["bluetoothctl", "pair", mac_address], check=True)
             subprocess.run(["bluetoothctl", "trust", mac_address], check=True)
             subprocess.run(["bluetoothctl", "connect", mac_address], check=True)
@@ -29,10 +46,16 @@ def check_and_connect_device(mac_address):
             
             # Restart the Docker 'joy' container after a successful reconnection
             print("Restarting 'joy' Docker container...")
-            subprocess.run(["docker", "compose", "restart", "joy"], check=True)
+            try:
+                subprocess.run(["docker", "restart", "joy"], check=True)
+                print("Docker compose restart successful.")
+                # Restart the 'joy' Docker container    
+            except subprocess.CalledProcessError as e:
+                print(f"Error restarting 'joy' Docker container: {e}")
+                # return False
             # subprocess.run(["docker", "compose", "restart", "teleop_twist_joy"], check=True)
             
-            print("Docker compose restart successful.")
+           
             
             return True
     except subprocess.CalledProcessError as e:
@@ -44,7 +67,7 @@ def check_and_connect_device(mac_address):
 
 if __name__ == "__main__":
     DEVICE_MAC = "90:B6:85:00:7D:B4"
-    RETRY_DELAY = 1 # seconds
+    RETRY_DELAY = 3 # seconds
 
     while True:
         print("\n--- Starting Bluetooth check and connect cycle ---")
