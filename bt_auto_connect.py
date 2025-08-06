@@ -28,7 +28,7 @@ def check_and_connect_device(mac_address):
             # Restart the Docker 'joy' container after a successful reconnection
             print("Restarting 'joy' Docker container...")
             subprocess.run(["docker", "compose", "restart", "joy"], check=True)
-            subprocess.run(["docker", "compose", "restart", "teleop_twist_joy"], check=True)
+            # subprocess.run(["docker", "compose", "restart", "teleop_twist_joy"], check=True)
             
             print("Docker compose restart successful.")
             
