@@ -1,47 +1,12 @@
+FROM python:3.10-slim
 
-
-ARG ROS_DISTRO=humble
-
-FROM husarnet/ros:$ROS_DISTRO-ros-core
-# Install necessary packages for Bluetooth and Docker interaction
-# bluez for bluetoothctl, rfkill for rfkill
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    bluez \
-    rfkill \
-    curl \
-    gnupg \
-    lsb-release && \
+RUN apt-get update && apt-get install -y \
+    bluetooth bluez rfkill sudo docker.io && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Docker CLI and Docker Compose plugin (needed for 'docker compose restart')
-# This part ensures the container can run 'docker compose' commands to interact with the host's Docker daemon.
-RUN install -m 0755 -d /etc/apt/keyrings && \
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc && \
-    chmod a+r /etc/apt/keyrings/docker.asc
+# Copy your Python script
+COPY docker_bt_auto_connect.py /usr/local/bin/docker_bt_auto_connect.py
+RUN chmod +x /usr/local/bin/docker_bt_auto_connect.py
 
-RUN echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
-  tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    docker-ce \
-    docker-ce-cli \
-    containerd.io \
-    docker-buildx-plugin \
-    docker-compose-plugin && \
-    rm -rf /var/lib/apt/lists/*
-
-
-# Copy the Python script into the container
-# While we're mounting it as a volume in docker-compose for easier development,
-# including it here makes the image self-contained if you ever run it directly.
-# COPY bt_auto_connect.py bt_auto_connect.py
-
-# # Make the script executable
-# RUN chmod +x bt_auto_connect.py
-
-# Set the default command to run when the container starts
-# CMD ["python3", "bt_auto_connect.py"]
+# Set entrypoint
+ENTRYPOINT ["python3", "/usr/local/bin/docker_bt_auto_connect.py"]
