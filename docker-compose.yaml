@@ -11,6 +11,7 @@ services:
     command: ros2 run joy joy_node --ros-args --params-file /joy_params.yaml
     
   teleop_twist_joy:
+    image: husarion/teleop-twist-joy:humble-2.4.5-20240318
     build:
       context: .
       dockerfile: Dockerfile
