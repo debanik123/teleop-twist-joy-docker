@@ -18,24 +18,24 @@ services:
     volumes:
       - ./teleop_twist_joy_f710_params.yaml:/teleop_twist_joy_f710_params.yaml
 
-  ktx_teleop_twist_joy:
-    image: wonbot/shinheeagv:ktx_teleop_twist_joy_v.10
-    build:
-      context: .
-      dockerfile: Dockerfile.ktx_teleop_twist_joy
-    volumes:
-      - ./amr_ws/src/teleop_twist_joy/config/ps3.config.yaml:/ps3.config.yaml:rw
-    command: 
-      ros2 run teleop_twist_joy teleop_node --ros-args --params-file /ps3.config.yaml -r __node:=joystick_teleop 
-      #ros2 run teleop_twist_joy teleop_node --ros-args --params-file /ps3.config.yaml
+  # ktx_teleop_twist_joy:
+  #   image: wonbot/shinheeagv:ktx_teleop_twist_joy_v.10
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.ktx_teleop_twist_joy
+  #   volumes:
+  #     - ./amr_ws/src/teleop_twist_joy/config/ps3.config.yaml:/ps3.config.yaml:rw
+  #   command: 
+  #     ros2 run teleop_twist_joy teleop_node --ros-args --params-file /ps3.config.yaml -r __node:=joystick_teleop 
+  #     #ros2 run teleop_twist_joy teleop_node --ros-args --params-file /ps3.config.yaml
 
-    container_name: ktx_teleop_twist_joy
-    tty: true
-    hostname: ktx_teleop_twist_joy
-    network_mode: host
-    ipc: host
-    restart: always
-    environment:
-      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+  #   container_name: ktx_teleop_twist_joy
+  #   tty: true
+  #   hostname: ktx_teleop_twist_joy
+  #   network_mode: host
+  #   ipc: host
+  #   restart: always
+  #   environment:
+  #     - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
   
