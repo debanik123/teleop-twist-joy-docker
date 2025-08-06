@@ -42,7 +42,7 @@ def check_and_connect_device(mac_address):
 
 if __name__ == "__main__":
     DEVICE_MAC = "90:B6:85:00:7D:B4"
-    RETRY_DELAY = 5 # seconds
+    RETRY_DELAY = 1 # seconds
 
     while True:
         print("\n--- Starting Bluetooth check and connect cycle ---")
