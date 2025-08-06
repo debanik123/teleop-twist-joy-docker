@@ -1,92 +1,63 @@
 import subprocess
 import time
 
-def run_btctl_cmd(*args, suppress_error=False):
-    """Helper to run bluetoothctl commands."""
-    try:
-        return subprocess.run(["bluetoothctl", *args], capture_output=True, text=True, check=not suppress_error)
-    except subprocess.CalledProcessError as e:
-        if suppress_error:
-            return e
-        raise
-
 def turn_on_bluetooth():
-    """Turns on Bluetooth using rfkill and ensures the service is running and powered."""
+    """Turns on Bluetooth using rfkill."""
     try:
         subprocess.run(["sudo", "rfkill", "unblock", "bluetooth"], check=True)
-        subprocess.run(["sudo", "systemctl", "start", "bluetooth"], check=True)
-        subprocess.run(["bluetoothctl", "power", "on"], check=True)
-        print("✅ Bluetooth has been turned on and powered up.")
-        time.sleep(2)
+        print("Bluetooth has been turned on.")
         return True
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        print(f"❌ Error turning on Bluetooth: {e}")
+        print(f"Error turning on Bluetooth: {e}")
         return False
 
-def clean_pairing(mac):
-    """Removes previous pairing (if any)."""
-    print(f"🧹 Removing old pairing for {mac} (if any)...")
-    run_btctl_cmd("remove", mac, suppress_error=True)
-
-def scan_device(duration=15):
-    """Scans for Bluetooth devices for the given duration (in seconds)."""
-    print(f"🔍 Scanning for devices for {duration} seconds...")
-    scan_proc = subprocess.Popen(["bluetoothctl", "scan", "on"])
-    time.sleep(duration)
-    scan_proc.terminate()
-    print("🔍 Scan complete.")
-
-def pair_and_trust(mac):
-    """Pairs and trusts the device."""
-    print(f"🤝 Pairing with device {mac}...")
-    result = run_btctl_cmd("pair", mac, suppress_error=True)
-    if "Pairing successful" in result.stdout or "already paired" in result.stdout:
-        print("✅ Device paired.")
-    else:
-        print(f"⚠️ Pairing may have failed:\n{result.stdout}")
-    
-    run_btctl_cmd("trust", mac)
-    print("🔒 Device trusted.")
-
-def connect_and_restart(mac):
-    """Connects to the device and restarts Docker container if needed."""
-    result = run_btctl_cmd("info", mac)
-    if "Connected: yes" in result.stdout:
-        print(f"✅ Device {mac} is already connected.")
-        return True
-
-    print(f"🔌 Connecting to {mac}...")
-    connect_result = run_btctl_cmd("connect", mac, suppress_error=True)
-    if "Connection successful" in connect_result.stdout:
-        print(f"🎉 Successfully connected to {mac}.")
-        print("🔄 Restarting 'joy' Docker container...")
-        subprocess.run(["docker", "compose", "restart", "joy"], check=True)
-        print("✅ Docker container restarted.")
-        return True
-    else:
-        print(f"❌ Failed to connect: {connect_result.stdout}")
+def check_and_connect_device(mac_address):
+    """Checks device status and connects if not connected."""
+    try:
+        # Check if the device is already connected
+        result = subprocess.run(["bluetoothctl", "info", mac_address], capture_output=True, text=True, check=True)
+        if "Connected: yes" in result.stdout:
+            print(f"✅ Device {mac_address} is already connected.")
+            return True
+        else:
+            print(f"🎮 Device {mac_address} is not connected. Attempting to connect...")
+            # Try to connect the device
+            subprocess.run(["bluetoothctl", "pair", mac_address], check=True)
+            subprocess.run(["bluetoothctl", "trust", mac_address], check=True)
+            subprocess.run(["bluetoothctl", "connect", mac_address], check=True)
+            print(f"Successfully connected to {mac_address}.")
+            
+            # Restart the Docker 'joy' container after a successful reconnection
+            print("Restarting 'joy' Docker container...")
+            subprocess.run(["docker", "compose", "restart", "joy"], check=True)
+            # subprocess.run(["docker", "compose", "restart", "teleop_twist_joy"], check=True)
+            
+            print("Docker compose restart successful.")
+            
+            return True
+    except subprocess.CalledProcessError as e:
+        print(f"Error connecting to device {mac_address} or restarting Docker container: {e}")
+        return False
+    except FileNotFoundError:
+        print("Error: 'bluetoothctl' or 'docker' command not found. Ensure BlueZ and Docker are installed.")
         return False
 
 if __name__ == "__main__":
     DEVICE_MAC = "90:B6:85:00:7D:B4"
-    RETRY_DELAY = 5  # seconds
+    RETRY_DELAY = 1 # seconds
 
     while True:
-        print("\n--- 🔄 Starting Bluetooth connection cycle ---")
-
+        print("\n--- Starting Bluetooth check and connect cycle ---")
+        
+        # Step 1: Ensure Bluetooth is enabled
         if not turn_on_bluetooth():
-            print("⚠️ Failed to turn on Bluetooth. Retrying...")
+            print("Failed to enable Bluetooth. Retrying...")
             time.sleep(RETRY_DELAY)
             continue
+        
+        # Step 2: Check and connect to the specific device and restart Docker container if needed
+        check_and_connect_device(DEVICE_MAC)
 
-        clean_pairing(DEVICE_MAC)
-        scan_device(duration=15)
-        pair_and_trust(DEVICE_MAC)
-
-        if connect_and_restart(DEVICE_MAC):
-            print("✅ Full connection cycle completed.")
-        else:
-            print("⚠️ Connection failed.")
-
-        print(f"⏳ Waiting {RETRY_DELAY} seconds before next attempt...")
+        # Pause before the next check
+        print(f"Loop finished. Waiting for {RETRY_DELAY} seconds before next check.")
         time.sleep(RETRY_DELAY)
