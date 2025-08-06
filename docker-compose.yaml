@@ -37,6 +37,7 @@ services:
   
   # New service for Bluetooth auto-connection and Docker restart
   bt_auto_connect:
+    image: husarnet/ros:bt_auto_connect
     build:
       context: .
       dockerfile: Dockerfile.bt_auto_connect # Path to the Dockerfile for this service
@@ -45,29 +46,13 @@ services:
     network_mode: host # Allows the container to access the host's network stack directly, necessary for bluetoothctl and Docker socket access
 
     volumes:
-      - ${PWD}/amr_task_manager_js/maps:/amr_task_manager_js/maps:rw
-      - ${PWD}/amr_task_manager_js/bt_trees:/amr_task_manager_js/bt_trees:rw
-      - ${PWD}/amr_task_manager_js/public:/amr_task_manager_js/public:rw
       - /var/run/docker.sock:/var/run/docker.sock:rw  # Allow the container to control Docker on the host
       - /var/run/dbus:/var/run/dbus
-      - /dev/mem:/dev/mem  # Allow access to /dev/mem device
-      - ./cyclone_dds_profile.xml:/dds_ws/cyclone_dds_profile.xml
-      - /bin/systemctl:/bin/systemctl
-      - /run/systemd/system:/run/systemd/system
-      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
-      - /sys/fs/cgroup:/sys/fs/cgroup
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-      - ./docker_bt_auto_connect.py:/docker_bt_auto_connect.py
+      # - ./bt_auto_connect.py:/bt_auto_connect.py
       # - ./audio:/usr/src/app/audio 
-    devices:
-      - "/dev/snd:/dev/snd"
-      - "/dev/input"
-    restart: always # Ensure this service is always running
-    environment:
-      - DEVICE_MAC=90:B6:85:00:7D:B4 # Specify your Bluetooth device's MAC address
-      - RETRY_DELAY=1 # Set the delay in seconds between connection attempts
-    command: python3 /docker_bt_auto_connect.py # Command to execute your Python script
+    # restart: always # Ensure this service is always running
+    
+    command: python3 bt_auto_connect.py # Command to execute your Python script
 
   # ktx_teleop_twist_joy:
   #   image: wonbot/shinheeagv:ktx_teleop_twist_joy_v.10

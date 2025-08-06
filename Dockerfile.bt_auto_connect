@@ -38,10 +38,10 @@ RUN apt-get update && \
 # Copy the Python script into the container
 # While we're mounting it as a volume in docker-compose for easier development,
 # including it here makes the image self-contained if you ever run it directly.
-COPY docker_bt_auto_connect.py /docker_bt_auto_connect.py
+# COPY bt_auto_connect.py bt_auto_connect.py
 
-# Make the script executable
-RUN chmod +x /docker_bt_auto_connect.py
+# # Make the script executable
+# RUN chmod +x bt_auto_connect.py
 
 # Set the default command to run when the container starts
-# CMD ["python3", "/docker_bt_auto_connect.py"]
+# CMD ["python3", "bt_auto_connect.py"]
