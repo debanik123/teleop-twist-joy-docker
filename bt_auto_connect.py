@@ -24,14 +24,20 @@ def check_and_connect_device(mac_address):
             # Try to connect the device
             subprocess.run(["bluetoothctl", "connect", mac_address], check=True)
             print(f"Successfully connected to {mac_address}.")
-            # docker compose restart 
+            
+            # Restart the Docker 'joy' container after a successful reconnection
+            print("Restarting 'joy' Docker container...")
+            subprocess.run(["docker", "compose", "restart", "joy"], check=True)
+            subprocess.run(["docker", "compose", "restart", "teleop_twist_joy"], check=True)
+            
+            print("Docker compose restart successful.")
             
             return True
     except subprocess.CalledProcessError as e:
-        print(f"Error connecting to device {mac_address}: {e}")
+        print(f"Error connecting to device {mac_address} or restarting Docker container: {e}")
         return False
     except FileNotFoundError:
-        print("Error: 'bluetoothctl' command not found. Is BlueZ installed?")
+        print("Error: 'bluetoothctl' or 'docker' command not found. Ensure BlueZ and Docker are installed.")
         return False
 
 if __name__ == "__main__":
@@ -47,7 +53,7 @@ if __name__ == "__main__":
             time.sleep(RETRY_DELAY)
             continue
         
-        # Step 2: Check and connect to the specific device
+        # Step 2: Check and connect to the specific device and restart Docker container if needed
         check_and_connect_device(DEVICE_MAC)
 
         # Pause before the next check

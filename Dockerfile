@@ -3,8 +3,17 @@ ARG ROS_DISTRO=humble
 FROM husarnet/ros:$ROS_DISTRO-ros-core
 
 RUN apt update && apt install -y \
+        libsdl2-dev \
+        bluez \
+        dbus \
+        ros-dev-tools \
+        ros-${ROS_DISTRO}-rmw-cyclonedds-cpp \
         ros-$ROS_DISTRO-teleop-twist-joy && \
-    rm -rf /var/lib/apt/lists/*
+        rm -rf /var/lib/apt/lists/*
+
+# RUN apt update && apt install -y \
+#         ros-$ROS_DISTRO-teleop-twist-joy && \
+#     rm -rf /var/lib/apt/lists/*
 
 RUN echo $(dpkg -s ros-$ROS_DISTRO-teleop-twist-joy | grep 'Version' | sed -r 's/Version:\s([0-9]+.[0-9]+.[0-9]+).*/\1/g') >> /version.txt
 
