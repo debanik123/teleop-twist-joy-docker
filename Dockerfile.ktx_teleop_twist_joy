@@ -1,4 +1,6 @@
-FROM wonbot/shinheeagv:humble-ros-base
+ARG ROS_DISTRO=humble
+
+FROM husarnet/ros:$ROS_DISTRO-ros-core
 
 ENV KTX_WS="/ktx_drive_ws"
 
@@ -12,6 +14,7 @@ RUN apt update && apt install -y \
         libsdl2-dev \
         bluez \
         dbus \
+        ros-dev-tools \
         ros-${ROS_DISTRO}-rmw-cyclonedds-cpp && \
         rm -rf /var/lib/apt/lists/*
 
